@@ -1,6 +1,7 @@
 <h1 align="center"> ✉️ SpoofX </h1>
 
 **spoofx** is a lightweight, high-performance CLI tool built in Go for identifying potential email spoofing vectors in domains.  
+
 It was designed with **offensive security workflows** in mind — particularly for:
 
 - 🔍 **Bug bounty recon**
