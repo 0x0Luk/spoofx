@@ -29,14 +29,6 @@ Or via pipe:
 subfinder -d www.test.com -all -silent | spoofx
 ```
 
-## 🔍 What it does
-
-- ✅ Fetches and parses SPF records
-- ✅ Extracts and classifies SPF strictness: strict, soft, neutral, unknown
-- ✅ Looks up DMARC policy, rua, ruf, and full TXT content
-- 🚨 Highlights weak or missing configurations in red
-- 🗂 Logs every result to log.csv
-
 ## Output log 
 A CSV file (log.csv) is generated automatically with:
 
@@ -44,6 +36,14 @@ A CSV file (log.csv) is generated automatically with:
 Timestamp,Domain,DMARC Policy,SPF Record,SPF Strictness
 2025-05-08 14:21:00,badmail.com,,,
 ```
+
+## 🔍 What it does
+
+- ✅ Fetches and parses SPF records
+- ✅ Extracts and classifies SPF strictness: strict, soft, neutral, unknown
+- ✅ Looks up DMARC policy, rua, ruf, and full TXT content
+- 🚨 Highlights weak or missing configurations in red
+- 🗂 Logs every result to log.csv
 
 # 💥 Why use spoofx?
 
