@@ -100,7 +100,7 @@ It will auto-generate a professional Markdown report for platforms like **Hacker
 
 ## 🏷 Version
 
-Current release: `v1.1.0`
+Current release: `v1.1.1`
 
 ---
 
