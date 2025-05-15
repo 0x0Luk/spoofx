@@ -1,4 +1,10 @@
-<h1 align="center">✉️ SpoofX</h1>
+<h1 align="center">🕵️ spoofx - E-mail Spoofing Analyzer</h1>
+
+<div align="center">
+  <img src="assets/spoofx.png" alt="spoofx" width="700">
+</div>
+
+<br>
 
 **spoofx** is a lightweight, high-performance CLI tool built in Go for identifying **email spoofing vectors** in domains through analysis of **SPF** and **DMARC** configurations.
 
@@ -51,15 +57,9 @@ subfinder -d example.com -silent | spoofx -v
 
 ## 📄 Output Example (Verbose Mode)
 
-```bash
-[*] Domain: example.com
-    DMARC Policy: reject
-    DMARC Reporting: rua=mailto:reports@example.com, ruf=
-    Full DMARC Record: v=DMARC1; p=reject; rua=mailto:reports@example.com
-    SPF Record: v=spf1 include:_spf.example.com -all
-    SPF Strictness: strict
---------------------------------------------------
-```
+<div align="center">
+  <img src="assets/output.png" alt="spoofx verbose output" width="700">
+</div>
 
 ---
 
