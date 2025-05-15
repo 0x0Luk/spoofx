@@ -124,7 +124,7 @@ func banner() {
 	▄▀▀▀█▄ ██▀· ▄█▀▄  ▄█▀▄ ██▪  ·██· 
 	▐█▄▪▐█▐█▪·•▐█▌.▐▌▐█▌.▐▌██▌.▪▐█·█▌
 	 ▀▀▀▀ .▀    ▀█▄▀▪ ▀█▄▀▪▀▀▀ •▀▀ ▀▀	
-	    ` + "\033[35mhttps://github.com/luq0x/spoofx\n\n")
+	     ` + "\033[35mhttps://github.com/luq0x\n\n")
 }
 
 func printUsage() {

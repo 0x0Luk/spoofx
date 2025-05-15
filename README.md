@@ -1,54 +1,111 @@
-<h1 align="center"> ✉️ SpoofX </h1>
+<h1 align="center">✉️ SpoofX</h1>
 
-**spoofx** is a lightweight, high-performance CLI tool built in Go for identifying potential email spoofing vectors in domains.  
+**spoofx** is a lightweight, high-performance CLI tool built in Go for identifying **email spoofing vectors** in domains through analysis of **SPF** and **DMARC** configurations.
 
-It was designed with **offensive security workflows** in mind — particularly for:
+Designed for **offensive security workflows** — especially for:
 
-- 🔍 **Bug bounty recon**
-- 🔥 **Red team infrastructure mapping**
-- 🧰 **Security audits for SPF/DMARC compliance**
+- 🔍 Bug bounty recon
+- 🔥 Red team domain mapping
+- 🧰 Security audits & SPF/DMARC compliance checks
 
-## Install
+---
 
-From go:
+## 🚀 Installation
 
-``` bash
-go install github.com/0x0Luk/spoofx@latest
+```bash
+go install github.com/luq0x/spoofx@latest
 ```
 
-## Usage
+---
 
-Scan domains from file:
+## ⚙️ Usage
 
-``` bash
+### Scan a single domain:
+```bash
+spoofx -d example.com
+```
+
+### Scan from file:
+```bash
 spoofx domains.txt
 ```
 
-Or via pipe:
-``` bash
-subfinder -d www.test.com -all -silent | spoofx
+### Scan via pipe:
+```bash
+subfinder -d example.com -silent | spoofx -v
 ```
 
-## Output log 
-A CSV file (log.csv) is generated automatically with:
+---
 
-``` bash
-Timestamp,Domain,DMARC Policy,SPF Record,SPF Strictness
-2025-05-08 14:21:00,badmail.com,,,
+## 🔎 Flags
+
+| Flag        | Description                              |
+|-------------|------------------------------------------|
+| `-d`        | Scan a single domain                     |
+| `-v`        | Enable verbose output                    |
+| `-h`        | Show help / usage                        |
+
+**Note:** Flags must come *before* the domain or file input.
+
+---
+
+## 📄 Output Example (Verbose Mode)
+
+```bash
+[*] Domain: example.com
+    DMARC Policy: reject
+    DMARC Reporting: rua=mailto:reports@example.com, ruf=
+    Full DMARC Record: v=DMARC1; p=reject; rua=mailto:reports@example.com
+    SPF Record: v=spf1 include:_spf.example.com -all
+    SPF Strictness: strict
+--------------------------------------------------
 ```
 
-## 🔍 What it does
+---
 
-- ✅ Fetches and parses SPF records
-- ✅ Extracts and classifies SPF strictness: strict, soft, neutral, unknown
-- ✅ Looks up DMARC policy, rua, ruf, and full TXT content
-- 🚨 Highlights weak or missing configurations in red
-- 🗂 Logs every result to log.csv
+## 🧾 HTML Report Generator
 
-# 💥 Why use spoofx?
+SpoofX now includes an **HTML tool to generate Markdown vulnerability reports** from your findings.  
 
-- 🔥 Fast CLI tool for mass-scanning SPF/DMARC
-- 🛡️ Helps find email spoofing vectors during recon
-- 🐞 Perfect for Bug Bounty, Red Team and Pentest
-- 🧰 Can be piped into toolchains with cat, httpx, dnsx, etc
+📁 Available at: [`report/spoofx.html`](report/spoofx.html)
 
+Just open the file in your browser and fill in:
+- Target domain
+- Spoofed email
+- Inbox used
+- Date
+
+It will auto-generate a professional Markdown report for platforms like **HackerOne**, **Bugcrowd**, or internal security docs.
+
+---
+
+## ✅ What it does
+
+- 🕵️ Fetches SPF & DMARC DNS records
+- 🧠 Classifies SPF strictness: `strict`, `soft`, `neutral`, or `unknown`
+- 🚨 Flags weak or missing policies
+- ✍️ Provides optional HTML report generation
+
+---
+
+## 💥 Why use SpoofX?
+
+- ⚡ Fast and lightweight (written in Go)
+- 🧩 Works in recon chains (`cat`, `dnsx`, `httpx`)
+- 🧰 CLI-based, no dependencies
+- 🧾 Markdown report generation included
+- 🎯 Perfect for Bug Bounty, Red Teaming, and Pentest Ops
+
+---
+
+## 🏷 Version
+
+Current release: `v1.1.0`
+
+---
+
+## 🙌 Author
+
+- 👨‍💻 [@luq0x](https://github.com/luq0x)
+
+Pull requests, suggestions, or PRs to improve detection and automation are always welcome.
