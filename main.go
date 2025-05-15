@@ -124,11 +124,10 @@ func banner() {
 	▄▀▀▀█▄ ██▀· ▄█▀▄  ▄█▀▄ ██▪  ·██· 
 	▐█▄▪▐█▐█▪·•▐█▌.▐▌▐█▌.▐▌██▌.▪▐█·█▌
 	 ▀▀▀▀ .▀    ▀█▄▀▪ ▀█▄▀▪▀▀▀ •▀▀ ▀▀	
-	    ` + "\033[35mhttps://github.com/0x0Luk\n\n")
+	    ` + "\033[35mhttps://github.com/luq0x/spoofx\n\n")
 }
 
 func printUsage() {
-	banner()
 	red := color.New(color.FgRed).SprintFunc()
 	mag := color.New(color.FgMagenta).SprintFunc()
 
@@ -145,6 +144,7 @@ func printUsage() {
 
 func main() {
 	flag.Usage = func() {
+		banner()
 		printUsage()
 	}
 
