@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SpoofX - Email Spoofing Report Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    h1 {
+      color: #8e44ad;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    input, textarea, button {
+      width: 100%;
+      margin-top: 5px;
+      padding: 8px;
+      font-size: 14px;
+    }
+    textarea {
+      height: 400px;
+      font-family: monospace;
+    }
+    button {
+      background-color: #8e44ad;
+      color: white;
+      border: none;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #732d91;
+    }
+  </style>
+</head>
+<body>
+ 
+  <h1>SpoofX - Email Spoofing Report Generator</h1>
+
+  <label for="targetDomain">Target Domain:</label>
+  <input type="text" id="targetDomain" placeholder="example.com">
+
+  <label for="spoofedFrom">Spoofed From Email:</label>
+  <input type="text" id="spoofedFrom" placeholder="spoof@example.com">
+
+  <label for="controlledInbox">Controlled Inbox:</label>
+  <input type="text" id="controlledInbox" placeholder="me@yourdomain.com">
+
+  <label for="date">Date:</label>
+  <input type="text" id="date" placeholder="dd/mm/yyyy">
+
+  <button onclick="generateReport()">Generate Template</button>
+
+  <label for="output">Generated Markdown Report:</label>
+  <textarea id="output" readonly></textarea>
+
+  <button onclick="copyToClipboard()">📋 Copy Report</button>
+
+  <script>
+    function generateReport() {
+      const targetDomain = document.getElementById("targetDomain").value;
+      const spoofedFrom = document.getElementById("spoofedFrom").value;
+      const controlledInbox = document.getElementById("controlledInbox").value;
+      const date = document.getElementById("date").value;
+
+      const markdown = `## ✉️ Description
+
+The domain \`${targetDomain}\` is vulnerable to **email spoofing** due to the absence or misconfiguration of **email authentication mechanisms** such as **SPF**, **DKIM**, and **DMARC**. This makes it possible for a malicious actor to send emails that appear to originate from \`${targetDomain}\`.
+
+To validate the issue, I sent a spoofed email from \`${spoofedFrom}\` to my own controlled inbox (\`${controlledInbox}\`) using the public email spoofing tool [emkei.cz](https://emkei.cz). The email was delivered successfully and appeared legitimate in the inbox.
+
+---
+
+## 🎯 Impact
+
+- 🎣 Phishing and spear-phishing attacks
+- 👮‍♂️ Impersonation of trusted entities (e.g., military, government, internal communications)
+- 💼 Business Email Compromise (BEC)
+- 📉 Loss of trust in communications from \`${targetDomain}\`
+- 🧠 High-risk potential for misinformation or social engineering
+
+---
+
+## 🧪 Steps to Reproduce
+
+1. Visit [https://emkei.cz](https://emkei.cz)
+2. Fill the form with the following details:
+
+\`\`\`
+From name:     Security Admin
+From email:    ${spoofedFrom}
+To email:      ${controlledInbox}
+
+This is a test demonstrating that spoofed emails from ${targetDomain} can be delivered.
+\`\`\`
+
+---
+
+## ✅ Recommended Mitigations
+
+- Implement a strict **SPF** policy using \`-all\`
+- Configure and publish a **DKIM** record for signing outbound emails
+- Enable and enforce a **DMARC** policy (\`quarantine\` or \`reject\`)
+- Monitor **rua** and **ruf** DMARC reports for unauthorized sending activity
+
+---
+
+## 🧾 Metadata
+
+- **Spoofed domain:** \`${targetDomain}\`
+- **Test email used:** \`${controlledInbox}\`
+- **Report generated with:** SpoofX – Email Spoofing Analyzer
+- **Date:** ${date}
+`;
+
+      document.getElementById("output").value = markdown;
+    }
+
+    function copyToClipboard() {
+        const output = document.getElementById("output");
+        output.select();
+        output.setSelectionRange(0, 99999); 
+
+        try {
+            document.execCommand("copy");
+            alert("📋 Report copied to clipboard!");
+        } catch (err) {
+            alert("❌ Failed to copy!");
+        }
+    }
+
+  </script>
+
+</body>
+</html>

@@ -1,4 +1,4 @@
-module github.com/0x0Luk/spoofx
+module github.com/luq0x/spoofx
 
 go 1.24.0
 

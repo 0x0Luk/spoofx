@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/csv"
 	"flag"
 	"fmt"
 	"net"
@@ -24,6 +23,8 @@ type SPFResult struct {
 	Record string
 	Rigor  string
 }
+
+var verbose bool
 
 func checkDMARC(domain string) DMARCResult {
 	var result DMARCResult
@@ -75,72 +76,49 @@ func checkSPF(domain string) SPFResult {
 	return result
 }
 
-func logToFile(domain string, dmarc DMARCResult, spf SPFResult) {
-	f, err := os.OpenFile("log.csv", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		color.Red("[!] Failed to write log: %v", err)
-		return
-	}
-	defer f.Close()
-
-	writer := csv.NewWriter(f)
-	defer writer.Flush()
-
-	entry := []string{
-		time.Now().Format("2006-01-02 15:04:05"),
-		domain,
-		dmarc.Policy,
-		spf.Record,
-		spf.Rigor,
-	}
-	writer.Write(entry)
-}
-
 func scan(domain string) {
 	mag := color.New(color.FgMagenta).SprintFunc()
 	gray := color.New(color.FgHiWhite).SprintFunc()
 	alert := color.New(color.FgRed).SprintFunc()
 
-	fmt.Printf("%s %s %s\n", mag("[*] Domain:"), gray(domain), "")
+	fmt.Printf("%s %s\n", mag("[*] Domain:"), gray(domain))
+
 	dmarc := checkDMARC(domain)
 	spf := checkSPF(domain)
 
-	// DMARC
-	if dmarc.Policy != "" {
-		fmt.Printf("    %s %s\n", mag("DMARC Policy:"), gray(dmarc.Policy))
-
-		if dmarc.Policy == "none" {
-			fmt.Println(alert("    [!] DMARC policy is weak: none"))
+	if verbose {
+		// DMARC
+		if dmarc.Policy != "" {
+			fmt.Printf("    %s %s\n", mag("DMARC Policy:"), gray(dmarc.Policy))
+			if dmarc.Rua != "" || dmarc.Ruf != "" {
+				fmt.Printf("    %s %s\n", mag("DMARC Reporting:"), gray(fmt.Sprintf("rua=%s, ruf=%s", dmarc.Rua, dmarc.Ruf)))
+			}
+			fmt.Printf("    %s %s\n", mag("Full DMARC Record:"), gray(dmarc.FullRecord))
+			if dmarc.Policy == "none" {
+				fmt.Println(alert("    [!] DMARC policy is weak: none"))
+			}
+		} else {
+			fmt.Println(alert("    [!] No DMARC policy found"))
 		}
 
-		if dmarc.Rua != "" || dmarc.Ruf != "" {
-			fmt.Printf("    %s %s\n", mag("DMARC Reporting:"), gray(fmt.Sprintf("rua=%s, ruf=%s", dmarc.Rua, dmarc.Ruf)))
+		// SPF
+		if spf.Record != "" {
+			fmt.Printf("    %s %s\n", mag("SPF Record:"), gray(spf.Record))
+			fmt.Printf("    %s %s\n", mag("SPF Strictness:"), gray(spf.Rigor))
+			if spf.Rigor == "neutral" || spf.Rigor == "unknown" || spf.Rigor == "" {
+				fmt.Println(alert(fmt.Sprintf("    [!] SPF is weak or undefined: %s", spf.Rigor)))
+			}
+		} else {
+			fmt.Println(alert("    [!] No SPF record found"))
 		}
-		fmt.Printf("    %s %s\n", mag("Full DMARC Record:"), gray(dmarc.FullRecord))
-	} else {
-		fmt.Println(alert("    [!] No DMARC policy found"))
+
+		fmt.Println(strings.Repeat("-", 50))
 	}
-
-	// SPF
-	if spf.Record != "" {
-		fmt.Printf("    %s %s\n", mag("SPF Record:"), gray(spf.Record))
-		fmt.Printf("    %s %s\n", mag("SPF Strictness:"), gray(spf.Rigor))
-
-		if spf.Rigor == "neutral" || spf.Rigor == "unknown" || spf.Rigor == "" {
-			fmt.Println(alert(fmt.Sprintf("    [!] SPF is weak or undefined: %s", spf.Rigor)))
-		}		
-	} else {
-		fmt.Println(alert("    [!] No SPF record found"))
-	}
-
-	logToFile(domain, dmarc, spf)
-	fmt.Println(strings.Repeat("-", 50))
+	time.Sleep(300 * time.Millisecond)
 }
 
 func banner() {
 	fmt.Printf("\033[31m" + `
-
-
 	.▄▄ ·  ▄▄▄·            ·▄▄▄▐▄• ▄ 
 	▐█ ▀. ▐█ ▄█▪     ▪     ▐▄▄· █▌█▌▪
 	▄▀▀▀█▄ ██▀· ▄█▀▄  ▄█▀▄ ██▪  ·██· 
@@ -149,13 +127,45 @@ func banner() {
 	    ` + "\033[35mhttps://github.com/0x0Luk\n\n")
 }
 
+func printUsage() {
+	banner()
+	red := color.New(color.FgRed).SprintFunc()
+	mag := color.New(color.FgMagenta).SprintFunc()
+
+	fmt.Println(red("Usage:"))
+	fmt.Println(mag("  spoofx [-v] -d domain.com"))
+	fmt.Println(mag("  spoofx [-v] domains.txt"))
+	fmt.Println(mag("  cat list.txt | spoofx [-v]"))
+
+	fmt.Println(red("\n\nParameters: "))
+	fmt.Println(mag("  -h : help"))
+	fmt.Println(mag("  -d : single domain to scan"))
+	fmt.Println(mag("  -v : enable verbose output"))
+}
+
 func main() {
-	flag.Parse()
+	flag.Usage = func() {
+		printUsage()
+	}
+
+	var domain string
+	flag.StringVar(&domain, "d", "", "single domain to scan")
+	flag.BoolVar(&verbose, "v", false, "enable verbose output")
+
+	err := flag.CommandLine.Parse(os.Args[1:])
+	if err != nil {
+		flag.Usage()
+		os.Exit(1)
+	}
+
 	args := flag.Args()
 	var domains []string
 	banner()
 
-	if len(args) > 0 {
+	if domain != "" {
+		domains = append(domains, domain)
+
+	} else if len(args) > 0 {
 		filePath := args[0]
 		f, err := os.Open(filePath)
 		if err != nil {
@@ -163,24 +173,29 @@ func main() {
 			return
 		}
 		defer f.Close()
-	
+
 		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
-			domains = append(domains, strings.TrimSpace(scanner.Text()))
+			d := strings.TrimSpace(scanner.Text())
+			if d != "" {
+				domains = append(domains, d)
+			}
 		}
 	} else {
 		info, _ := os.Stdin.Stat()
 		if (info.Mode() & os.ModeCharDevice) == 0 {
 			scanner := bufio.NewScanner(os.Stdin)
 			for scanner.Scan() {
-				domains = append(domains, strings.TrimSpace(scanner.Text()))
+				d := strings.TrimSpace(scanner.Text())
+				if d != "" {
+					domains = append(domains, d)
+				}
 			}
 		} else {
-			color.Red("Usage: spoofx domains.txt or tool | spoofx")
+			printUsage()
 			return
 		}
 	}
-	
 
 	for _, domain := range domains {
 		scan(domain)
